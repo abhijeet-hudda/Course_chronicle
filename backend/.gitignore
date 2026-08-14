@@ -1,0 +1,103 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+.pnp/
+.pnp.js
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Runtime files
+# =========================
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# Coverage
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Build / Distribution
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+*.tmp
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Cache
+# =========================
+.cache/
+.parcel-cache/
+.eslintcache
+
+# =========================
+# Testing
+# =========================
+.nyc_output/
+
+# =========================
+# Uploads / Local storage
+# =========================
+uploads/
+storage/
+
+# =========================
+# Secrets / Certificates
+# =========================
+*.pem
+*.key
+*.crt
+
+# =========================
+# Vite / Frontend
+# =========================
+.vercel/
+.netlify/
+
+node_modules/
+.env
+public/temp/*
+!public/temp/.gitkeep
+*.log
+.DS_Store

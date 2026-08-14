@@ -1,0 +1,99 @@
+{
+  "instruction": "Extract details from the exam paper exactly as they appear. Return a JSON output containing the following keys: 'course', 'session', 'sessionYear', 'examType', and 'questions'. For each question, include its text, a detailed answer, and a specific topic tag. Analyze each question carefully to provide a detailed, pedagogically valuable answer.",
+  "details": {
+    "course": {
+      "description": "An object with two keys: 'code' (e.g., 'CSC306') and 'name' (e.g., 'Computer Networks'). The normalised course code contains two parts: a string and a number, and there must be no hyphen or space between them. Normalise any variation (e.g., 'CS 306', 'CS-306', etc.) to the correct value."
+    },
+    "session": {
+      "description": "A string which must be one of 'Winter', 'Summer', or 'Monsoon'. Normalize any variation (e.g., 'winter session', 'SUMMER-23', etc.) to the correct value."
+    },
+    "sessionYear": {
+      "description": "A string representing the academic session (e.g., '2022-23', '2023-24')."
+    },
+    "examType": {
+      "description": "A string that exactly matches one of 'Midsem', 'Endsem', 'Quiz', or 'Assignment'. Normalize any variation (e.g., 'Mid SEMESTER') to the correct value."
+    },
+    "questions": {
+      "description": "An array where each item is an object representing an exam question with its detail answer and a topic tag.",
+      "structure": {
+        "question": "The question text, captured exactly as it appears in the exam paper.",
+        "answer": "Generate an exceptionally detailed and comprehensive answer, suitable for a student aiming for deep understanding. The answer should go beyond a simple solution and provide pedagogical value. **Clarity and Structure:** Use markdown formatting such as bullet points, numbered lists, math (including inline math) formulas (written in LaTeX with markdown), and logical headings/subheadings (`### Heading`) to structure the answer and improve readability.",
+        "tag": "A single, specific tag that accurately identifies the core concept, technique, model, algorithm, or sub-topic tested by the question."
+      }
+    }
+  },
+  "notes": "If the paper is unreadable, not a valid exam paper, or any field is invalid after normalization, return a JSON object where all fields ('course', 'session', 'sessionYear', 'examType', and 'questions') have a value of -1.",
+  "responseMimeType": "application/json",
+  "responseSchema": {
+    "type": "object",
+    "properties": {
+      "course": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Course code, e.g., 'CSC306'"
+          },
+          "name": {
+            "type": "string",
+            "description": "Course name, e.g., 'Computer Networks'"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "session": {
+        "type": "string",
+        "enum": [
+          "Winter",
+          "Summer",
+          "Monsoon"
+        ]
+      },
+      "sessionYear": {
+        "type": "string"
+      },
+      "examType": {
+        "type": "string",
+        "enum": [
+          "Midsem",
+          "Endsem",
+          "Quiz",
+          "Assignment"
+        ]
+      },
+      "questions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "answer": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question",
+            "answer",
+            "tag"
+          ]
+        }
+      }
+    },
+    "required": [
+      "course",
+      "session",
+      "sessionYear",
+      "examType",
+      "questions"
+    ]
+  },
+  "output_format": "Return only a JSON object encapsulated within a markdown code block."
+}

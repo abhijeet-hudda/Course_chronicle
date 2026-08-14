@@ -1,4 +1,4 @@
-export const DB_NAME = "course_chronicle";
+export const DB_NAME = "Course_chronicle_project";
  
 // Centralised "magic numbers" so credit logic isn't scattered across controllers
 export const CREDITS = {
