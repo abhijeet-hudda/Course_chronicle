@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { CREDITS } from "../utils/constants.js";
-import { getCookieOptions } from "../utils/cookieOptions.js";
+import { getCookieOptions,getClearCookieOptions } from "../utils/cookieOptions.js";
 
 const generateReferralCode = () => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -15,25 +15,24 @@ const generateReferralCode = () => {
   }
   return code;
 };
-
+ 
 const signToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRY || "1d",
   });
-
-
+ 
 const signup = asyncHandler(async (req, res) => {
   const { Name, Email, Password, referralCode, enrolledCourses } = req.body;
-
+ 
   if (!Name?.trim() || !Email?.trim() || !Password?.trim()) {
     throw new ApiError(400, "Name, Email and Password are required");
   }
-
+ 
   const existingUser = await User.findOne({ Email: Email.toLowerCase() });
   if (existingUser) {
     throw new ApiError(409, "User already exists");
   }
-
+ 
   let credit = CREDITS.SIGNUP_BASE;
   let userReferred = null;
   if (referralCode) {
@@ -43,9 +42,9 @@ const signup = asyncHandler(async (req, res) => {
     }
     credit += CREDITS.REFERRAL_BONUS;
   }
-
+ 
   const hashPassword = await bcrypt.hash(Password, 12);
-
+ 
   const newUser = await User.create({
     Name,
     Email,
@@ -54,17 +53,18 @@ const signup = asyncHandler(async (req, res) => {
     enrolledCourses: enrolledCourses || [],
     RefCode: generateReferralCode(),
   });
-
+ 
   // Only commit the referrer's bonus once we know the new user was saved
   if (userReferred) {
     userReferred.Credit += CREDITS.REFERRAL_BONUS;
     await userReferred.save();
   }
-
+ 
   const token = signToken(newUser._id);
-
+ 
   return res
     .status(201)
+    .cookie("accessToken", token, getCookieOptions())
     .json(
       new ApiResponse(
         201,
@@ -80,21 +80,21 @@ const signup = asyncHandler(async (req, res) => {
       )
     );
 });
-
+ 
 const login = asyncHandler(async (req, res) => {
   const { Email, Password } = req.body;
-
+ 
   if (!Email?.trim() || !Password?.trim()) {
     throw new ApiError(400, "Email and Password are required");
   }
-
+ 
   const existingUser = await User.findOne({ Email: Email.toLowerCase() });
   if (!existingUser || !(await bcrypt.compare(Password, existingUser.Password))) {
     throw new ApiError(401, "Invalid credentials");
   }
-
+ 
   const token = signToken(existingUser._id);
-
+ 
   return res
     .status(200)
     .cookie("accessToken", token, getCookieOptions())
@@ -111,48 +111,48 @@ const login = asyncHandler(async (req, res) => {
       )
     );
 });
-
+ 
 const logout = asyncHandler(async (req, res) => {
   return res
     .status(200)
-    .clearCookie("accessToken", getCookieOptions())
+    .clearCookie("accessToken", getClearCookieOptions())
     .json(new ApiResponse(200, {}, "Logged out successfully"));
 });
-
+ 
 const getUnlockedAnswers = asyncHandler(async (req, res) => {
   const { paperId } = req.body;
   if (!paperId) {
     throw new ApiError(400, "paperId is required");
   }
-
+ 
   const user = await User.findById(req.userData.userId);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-
+ 
   const entry = user.unlockedAnswers.find((ua) => ua.paperId.toString() === paperId);
   const questionIndexes = entry ? [...entry.questionIndexes].sort((a, b) => a - b) : [];
-
+ 
   return res.status(200).json(new ApiResponse(200, { unlockedAnswers: questionIndexes }));
 });
-
+ 
 const unlockAnswer = asyncHandler(async (req, res) => {
   const { paperId, questionIndex } = req.body;
   if (!paperId || questionIndex === undefined) {
     throw new ApiError(400, "paperId and questionIndex are required");
   }
-
+ 
   const user = await User.findById(req.userData.userId);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-
+ 
   if (user.Credit < CREDITS.UNLOCK_ANSWER_COST) {
     throw new ApiError(400, "Insufficient credits");
   }
-
+ 
   user.Credit -= CREDITS.UNLOCK_ANSWER_COST;
-
+ 
   const entry = user.unlockedAnswers.find((ua) => ua.paperId.toString() === paperId);
   if (entry) {
     if (!entry.questionIndexes.includes(questionIndex)) {
@@ -162,29 +162,29 @@ const unlockAnswer = asyncHandler(async (req, res) => {
   } else {
     user.unlockedAnswers.push({ paperId, questionIndexes: [questionIndex] });
   }
-
+ 
   await user.save();
-
+ 
   return res.status(200).json(new ApiResponse(200, { credit: user.Credit }, "Answer unlocked"));
 });
-
+ 
 const getNotifications = asyncHandler(async (req, res) => {
   const user = await User.findById(req.userData.userId);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-
+ 
   const notifications = [...user.Notification].sort((a, b) => b.CreatedAt - a.CreatedAt);
   return res.status(200).json(new ApiResponse(200, notifications));
 });
-
+ 
 const getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.userData.userId).select("-Password");
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-
+ 
   return res.status(200).json(new ApiResponse(200, user));
 });
-
+ 
 export { signup, login, logout, getUnlockedAnswers, unlockAnswer, getNotifications, getProfile };

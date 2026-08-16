@@ -1,0 +1,17 @@
+.open-sans-google {
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.split-view {
+  display: flex;
+  height: 80vh;
+}
+
+.split-view > div {
+  flex: 1;
+  overflow-y: auto;
+}
