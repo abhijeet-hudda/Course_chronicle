@@ -68,7 +68,8 @@ Course_chronicle/
 
    ```env
    PORT=8000
-   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<database>
+   # Do not append a database name: the app adds Course_chronicle_project.
+   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net
    JWT_SECRET=replace-with-a-long-random-secret
    JWT_EXPIRY=1d
    CORS_ORIGIN=http://localhost:5173
@@ -148,6 +149,53 @@ Routes that access user data, upload papers, unlock answers, or handle payments 
 - Keep `CORS_ORIGIN` restricted to trusted frontend URLs in production.
 - Serve the frontend and API over HTTPS in production so secure cookies and payment requests are protected.
 - Configure production cookie settings and deployment URLs before releasing the application publicly.
+
+## Deploying to Render and Vercel
+
+Deploy the API to Render from the `backend` directory and the frontend to Vercel from the `frontend` directory.
+
+### Render (backend)
+
+Use these service settings:
+
+| Setting | Value |
+| --- | --- |
+| Runtime | Node |
+| Root directory | `backend` |
+| Build command | `npm ci` |
+| Start command | `npm start` |
+
+Do **not** use `npm run dev` on Render. It runs Nodemon, which is a development dependency and is not installed in production deployments.
+
+In Render's **Environment** tab, add the values from `backend/.env.example` with these production changes:
+
+```env
+NODE_ENV=production
+CORS_ORIGIN=https://your-vercel-project.vercel.app
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net
+JWT_SECRET=<a-long-random-secret>
+JWT_EXPIRY=1d
+COOKIE_MAX_AGE_MS=86400000
+CLOUDINARY_CLOUD_NAME=<cloudinary-cloud-name>
+CLOUDINARY_API_KEY=<cloudinary-api-key>
+CLOUDINARY_API_SECRET=<cloudinary-api-secret>
+GEMINI_KEY=<gemini-api-key>
+RAZORPAY_KEY_ID=<razorpay-key-id>
+RAZORPAY_KEY_SECRET=<razorpay-key-secret>
+```
+
+Do not set `PORT` on Render; it supplies this value automatically. `CORS_ORIGIN` must be the exact Vercel URL, without a trailing `/`. Add comma-separated origins if you use both a preview and production frontend.
+
+### Vercel (frontend)
+
+Set Vercel's root directory to `frontend`, then add these environment variables in **Settings → Environment Variables**:
+
+```env
+VITE_API_BASE_URL=https://your-render-service.onrender.com/api/v1
+VITE_RAZORPAY_KEY_ID=rzp_test_your_key_id
+```
+
+Redeploy Vercel after adding or changing a `VITE_` variable. Never put `RAZORPAY_KEY_SECRET`, database credentials, Cloudinary secrets, or `JWT_SECRET` in Vercel's frontend environment variables.
 
 ## Development notes
 
