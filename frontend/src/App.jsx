@@ -5,16 +5,16 @@ import { useDispatch } from "react-redux";
 import { fetchProfile } from "./store/authSlice";
 import { useAuth } from "./hooks/useAuth";
 
-import Navbar from "./Components/Navbar/Navbar";
-import Signup from "./Components/Signup/Signup";
-import Login from "./Components/Login/Login";
-import Footer from "./Components/Footer/Footer";
-import Hero from "./Components/Hero/Hero";
-import Upload from "./Components/Upload/Upload";
-import Subscription from "./Components/Subscription/Subscription";
-import Question from "./Components/Question/Question";
-import Dashboard from "./Components/Dashboard/Dashboard";
-import AboutUs from "./components/AboutUs/AboutUs"
+import Navbar from "./components/Navbar/Navbar";
+import Signup from "./components/Signup/Signup";
+import Login from "./components/Login/Login";
+import Footer from "./components/Footer/Footer";
+import Hero from "./components/Hero/Hero";
+import Upload from "./components/Upload/Upload";
+import Subscription from "./components/Subscription/Subscription";
+import Question from "./components/Question/Question";
+import Dashboard from "./components/Dashboard/Dashboard";
+import AboutUs from "./components/AboutUs/AboutUs";
 
 function App() {
   const dispatch = useDispatch();
